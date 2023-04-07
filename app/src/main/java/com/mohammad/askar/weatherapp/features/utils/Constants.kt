@@ -1,4 +1,4 @@
-package com.flexcode.jetweather.utils
+package com.mohammad.askar.weatherapp.features.utils
 
 object Constants {
 

@@ -1,10 +1,10 @@
-
+package com.mohammad.askar.weatherapp.features.di
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.flexcode.jetweather.utils.Constants.BASE_URL
-import com.flexcode.jetweather.utils.Constants.LOCATION_QUERY
+import com.mohammad.askar.weatherapp.features.utils.Constants.BASE_URL
+import com.mohammad.askar.weatherapp.features.utils.Constants.LOCATION_QUERY
 import com.mohammad.askar.weatherapp.features.data.local.LocationDatabase
 import com.mohammad.askar.weatherapp.features.data.remote.ApiService
 import com.mohammad.askar.weatherapp.features.data.repository.LocationsRepositoryImpl

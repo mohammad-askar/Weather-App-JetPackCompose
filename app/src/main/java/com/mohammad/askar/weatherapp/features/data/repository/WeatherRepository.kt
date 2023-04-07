@@ -1,7 +1,7 @@
 package com.mohammad.askar.weatherapp.features.data.repository
 
 import android.content.SharedPreferences
-import com.flexcode.jetweather.utils.Constants.LOCATION_QUERY
+import com.mohammad.askar.weatherapp.features.utils.Constants.LOCATION_QUERY
 import com.mohammad.askar.weatherapp.features.data.remote.ApiService
 import com.mohammad.askar.weatherapp.features.doamin.model.WeatherResponse
 import com.mohammad.askar.weatherapp.features.utils.Resource
