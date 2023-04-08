@@ -1,32 +1,35 @@
 package com.mohammad.askar.weatherapp.features.presentation.bottomnavigation
 
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.mohammad.askar.weatherapp.ui.theme.Purple700
+import com.mohammad.askar.weatherapp.features.presentation.screens.NavGraphs
 import com.mohammad.askar.weatherapp.ui.theme.brightBlue
 import com.mohammad.askar.weatherapp.ui.theme.whiteGray
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.spec.NavHostEngine
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavController,
+    navController: NavHostController,
+    navHostEngine: NavHostEngine,
     showBottomNav: Boolean = true,
     items: List<BottomNavigationItem> = listOf(
         BottomNavigationItem.Home,
         BottomNavigationItem.Search,
         BottomNavigationItem.Alert,
     ),
-    content: @Composable (paddingValues: PaddingValues) -> Unit
+//    content: @Composable (paddingValues: PaddingValues) -> Unit
 ) {
     Scaffold(
         backgroundColor = brightBlue,
@@ -84,6 +87,14 @@ fun BottomNavigationBar(
         }
 
     ) {
-        content(it)
+//        content(it)
+            Box(modifier = Modifier.padding(it)) {
+                DestinationsNavHost(
+                    navGraph = NavGraphs.root,
+                    navController = navController,
+                    engine = navHostEngine
+                )
+            }
+
     }
 }
