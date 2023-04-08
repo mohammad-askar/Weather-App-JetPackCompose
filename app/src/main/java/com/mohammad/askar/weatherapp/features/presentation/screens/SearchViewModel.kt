@@ -19,7 +19,6 @@ class SearchViewModel @Inject constructor(
     val query: State<String> = _query
 
     fun setSearchQuery(location: String){
-//        _query.value = location
         search(location)
     }
 

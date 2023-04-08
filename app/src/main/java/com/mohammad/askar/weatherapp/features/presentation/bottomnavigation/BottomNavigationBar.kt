@@ -29,7 +29,6 @@ fun BottomNavigationBar(
         BottomNavigationItem.Search,
         BottomNavigationItem.Alert,
     ),
-//    content: @Composable (paddingValues: PaddingValues) -> Unit
 ) {
     Scaffold(
         backgroundColor = brightBlue,

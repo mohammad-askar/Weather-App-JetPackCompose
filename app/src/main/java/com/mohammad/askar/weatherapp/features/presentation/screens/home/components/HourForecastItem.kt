@@ -36,7 +36,6 @@ fun HourItem(
         shape = RoundedCornerShape(8.dp),
         backgroundColor = brightBlue,
         elevation = 8.dp,
-//        border = BorderStroke(1.dp, White)
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
