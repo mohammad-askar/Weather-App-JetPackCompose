@@ -43,8 +43,8 @@ The domain layer is responsible for encapsulating complex business logic, or sim
 * [Coil](https://coil-kt.github.io/coil/compose/) - Image Loader library.
 
 ## Screenshhots
-* Ui Inspiration [dribble](https://dribbble.com/search/weather-app)
-<img src="/preview/2023-04-12_160645.png" width="320">
+* Ui Inspiration [dribble](https://dribbble.com/search/weather-app)&emsp;
+<img src="/preview/2023-04-12_160645.png" width="320"> 
 <img src="/preview/2023-04-12_160715.png" width="320">
 <img src="/preview/2023-04-12_160733.png" width="320">
 <img src="/preview/Video-2023-04-12-161011.gif" width="320">&emsp;
