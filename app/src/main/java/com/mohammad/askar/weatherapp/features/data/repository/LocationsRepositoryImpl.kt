@@ -7,6 +7,8 @@ import com.mohammad.askar.weatherapp.features.data.local.mapper.toLocations
 import com.mohammad.askar.weatherapp.features.data.local.mapper.toLocationsEntity
 import com.mohammad.askar.weatherapp.features.doamin.model.Locations
 import com.mohammad.askar.weatherapp.features.doamin.repository.LocationsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class LocationsRepositoryImpl(
     private val dao: LocationsDao
@@ -19,19 +21,24 @@ class LocationsRepositoryImpl(
         dao.deleteLocation(locations.toLocationsEntity())
     }
 
-    /*override fun getAllLocations(): Flow<List<Locations>> {
+    override suspend fun deleteAllLocations() {
+        dao.deleteAllLocations()
+    }
+
+
+    override fun getAllLocations(): Flow<List<Locations>> {
         return dao.getAllLocations().map { locations ->
             locations.map { it.toLocations() }
         }
-    }*/
+    }
 
     // Here to fix
 
-    override fun getAllLocations(): LiveData<List<Locations>> {
-        return dao.getAllLocations().map{ entity->
-            entity.map {
-                it.toLocations()
-            }
-        }
-    }
+//    override fun getAllLocations(): LiveData<List<Locations>> {
+//        return dao.getAllLocations().map{ entity->
+//            entity.map {
+//                it.toLocations()
+//            }
+//        }
+//    }
 }

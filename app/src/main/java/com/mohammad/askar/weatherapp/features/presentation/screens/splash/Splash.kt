@@ -86,7 +86,7 @@ fun Splash(scale: Animatable<Float, AnimationVector1D>) {
 
             Image(
                 modifier = Modifier
-                    .size(250.dp)
+                    .size(240.dp)
                     .padding(8.dp)
                     .scale(scale = scale.value),
                 painter = painterResource(
@@ -99,7 +99,7 @@ fun Splash(scale: Animatable<Float, AnimationVector1D>) {
                 modifier = Modifier
                     .padding(8.dp)
                     .scale(scale = scale.value),
-                text = "Created by\n Juzef Srozef",
+                text = "Created by\n MOHMMAD ASKAR",
                 fontSize = 28.sp,
                 fontFamily = FontFamily.Serif,
                 color = White,

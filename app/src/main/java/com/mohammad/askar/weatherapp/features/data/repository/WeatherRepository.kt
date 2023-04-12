@@ -6,6 +6,7 @@ import com.mohammad.askar.weatherapp.features.data.remote.ApiService
 import com.mohammad.askar.weatherapp.features.doamin.model.WeatherResponse
 import com.mohammad.askar.weatherapp.features.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -15,7 +16,7 @@ class WeatherRepository(
 
 ) {
     val currentLocationQuery = MutableStateFlow(
-        sharedPreferences.getString(LOCATION_QUERY,"Nairobi"))
+        sharedPreferences.getString(LOCATION_QUERY,"Trier"))
 
     suspend fun getWeatherData(location : String) : Resource<WeatherResponse> {
 
@@ -35,6 +36,10 @@ class WeatherRepository(
 
     fun saveToSharedPrefs(locationName: String) {
         sharedPreferences.edit().putString(LOCATION_QUERY, locationName).apply()
+        currentLocationQuery.update { locationName }
+    }
+    fun deleteFromSharedPrefs(locationName: String) {
+        sharedPreferences.edit().remove(LOCATION_QUERY).apply()
         currentLocationQuery.value = locationName
     }
 }

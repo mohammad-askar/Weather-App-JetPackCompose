@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.mohammad.askar.weatherapp.features.data.local.entity.LocationsEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocationsDao {
@@ -16,5 +17,8 @@ interface LocationsDao {
     suspend fun deleteLocation(location: LocationsEntity)
 
     @Query("SELECT * FROM location_table ORDER BY locationName ASC")
-    fun getAllLocations(): LiveData<List<LocationsEntity>>
+    fun getAllLocations(): Flow<List<LocationsEntity>>
+
+    @Query("Delete from location_table")
+    suspend fun deleteAllLocations()
 }

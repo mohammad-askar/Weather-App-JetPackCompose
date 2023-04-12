@@ -15,11 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mohammad.askar.weatherapp.features.presentation.screens.home.components.DetailsItem
@@ -42,11 +40,15 @@ import com.mohammad.askar.weatherapp.features.doamin.model.ForecastDay
 import com.mohammad.askar.weatherapp.features.doamin.model.Locations
 import com.mohammad.askar.weatherapp.features.presentation.screens.home.components.HourItem
 import com.mohammad.askar.weatherapp.features.utils.dayOfTheWeek
+import com.mohammad.askar.weatherapp.ui.theme.DailyItemBackground
+import com.mohammad.askar.weatherapp.ui.theme.DetailBackground
 import com.mohammad.askar.weatherapp.ui.theme.brightBlue
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @RootNavGraph(start = true)
@@ -55,13 +57,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
-
-    val context = LocalContext.current
-    val locationDialog = remember { mutableStateOf(false) }
-    val localLocations: List<Locations> =
-        viewModel.allLocations.observeAsState().value ?: emptyList()
-
+    val state = viewModel.state.collectAsState().value
 
     /**
      * Remember to implement   delete a city
@@ -91,11 +87,11 @@ fun HomeScreen(
 
 @Composable
 fun DisplayData(viewModel: HomeViewModel) {
-    val state = viewModel.state.value
+    val state = viewModel.state.collectAsState()
     val context = LocalContext.current
     val locationDialog = remember { mutableStateOf(false) }
-    val localLocations: List<Locations> =
-        viewModel.allLocations.observeAsState().value ?: emptyList()
+    val localLocations: State<List<Locations>> =
+        viewModel.allLocations.collectAsState(emptyList())
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,14 +104,14 @@ fun DisplayData(viewModel: HomeViewModel) {
             LazyRow(
                 contentPadding = PaddingValues(end = 8.dp)
             ) {
-                items(localLocations) { location ->
+                items(localLocations.value) { location ->
 
                     Card(
                         modifier = Modifier
                             .padding(start = 4.dp)
                             .height(30.dp)
                             .clickable {
-                                viewModel.saveToSharedPrefs(location.locationName)
+                                viewModel.getWeatherDetails(location = location.locationName)
                                 Toast
                                     .makeText(
                                         context, "${location.locationName} set as Default",
@@ -123,9 +119,9 @@ fun DisplayData(viewModel: HomeViewModel) {
                                     )
                                     .show()
                             },
-                        backgroundColor = if (location.locationName == viewModel.currentLocation.value) {
+                        backgroundColor = if (location.locationName == viewModel.currentLocation.collectAsState().value) {
                             brightBlue
-                        } else Gray,
+                        } else DetailBackground,
                         elevation = 5.dp,
                         shape = RoundedCornerShape(8.dp)
                     ) {
@@ -140,9 +136,7 @@ fun DisplayData(viewModel: HomeViewModel) {
                                 color = White
                             )
                             IconButton(onClick = {
-                                GlobalScope.launch(Dispatchers.Main) {
-                                    viewModel.deleteLocation(Locations(locationName = location.locationName))
-                                }
+                                    viewModel.deleteLocation(Locations(locationName = location.locationName, id = location.id))
                                 Toast.makeText(
                                     context, "${location.locationName} Deleted..",
                                     Toast.LENGTH_LONG
@@ -197,7 +191,7 @@ fun DisplayData(viewModel: HomeViewModel) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = "${state.data?.location?.name}, ${state.data?.location?.country} ",
+                text = "${state.value.data?.location?.name}, ${state.value.data?.location?.country} ",
                 color = White,
                 fontSize = 20.sp
             )
@@ -216,7 +210,7 @@ fun DisplayData(viewModel: HomeViewModel) {
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "${state.data?.current?.tempC}${0x00B0.toChar()}",
+                    text = "${state.value.data?.current?.tempC}${0x00B0.toChar()}",
                     style = MaterialTheme.typography.h2.merge(),
                     color = White,
                     textAlign = TextAlign.Start,
@@ -227,7 +221,7 @@ fun DisplayData(viewModel: HomeViewModel) {
                         )
                 )
                 Text(
-                    text = "${state.data?.current?.condition?.text}",
+                    text = "${state.value.data?.current?.condition?.text}",
                     style = MaterialTheme.typography.body1.merge(),
                     color = White,
                     textAlign = TextAlign.Start,
@@ -247,10 +241,10 @@ fun DisplayData(viewModel: HomeViewModel) {
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data("https:${state.data?.current?.condition?.icon}")
+                        .data("https:${state.value.data?.current?.condition?.icon}")
                         .crossfade(true)
                         .build(),
-                    contentDescription = "${state.data?.current?.condition?.text}",
+                    contentDescription = "${state.value.data?.current?.condition?.text}",
                     modifier = Modifier
                         .size(100.dp)
                 )
@@ -275,17 +269,17 @@ fun DisplayData(viewModel: HomeViewModel) {
             ) {
                 DetailsItem(
                     text1 = "Feels Like",
-                    textValue = "${state.data?.current?.feelslikeC}${0x00B0.toChar()}"
+                    textValue = "${state.value.data?.current?.feelslikeC}${0x00B0.toChar()}"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 DetailsItem(
                     text1 = "Wind Speed",
-                    textValue = "${state.data?.current?.windKph} kp/h"
+                    textValue = "${state.value.data?.current?.windKph} kp/h"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 DetailsItem(
                     text1 = "Pressure",
-                    textValue = "${state.data?.current?.pressureMb} Mb"
+                    textValue = "${state.value.data?.current?.pressureMb} Mb"
                 )
 
             }
@@ -298,18 +292,18 @@ fun DisplayData(viewModel: HomeViewModel) {
             ) {
                 DetailsItem(
                     text1 = "Humidity",
-                    textValue = "${state.data?.current?.humidity}%"
+                    textValue = "${state.value.data?.current?.humidity}%"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 //val windDir = "${state.data?.current?.windDir}"
                 DetailsItem(
                     text1 = "Wind direction",
-                    textValue = "${state.data?.current?.windDir}"
+                    textValue = "${state.value.data?.current?.windDir}"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 DetailsItem(
                     text1 = "Uv Index",
-                    textValue = "${state.data?.current?.uv}"
+                    textValue = "${state.value.data?.current?.uv}"
                 )
 
             }
@@ -319,7 +313,7 @@ fun DisplayData(viewModel: HomeViewModel) {
             contentPadding = PaddingValues(horizontal = 8.dp),
             content = {
                 val hourForecast: List<ForecastDay> =
-                    state.data?.forecast?.forecastDay ?: emptyList()
+                    state.value.data?.forecast?.forecastDay ?: emptyList()
                 items(hourForecast) {
                     it.hour.forEach { hour ->
                         HourItem(
@@ -343,7 +337,7 @@ fun DisplayData(viewModel: HomeViewModel) {
                 contentPadding = PaddingValues(vertical = 2.dp),
                 content = {
                     val dailyForecast: List<ForecastDay> =
-                        state.data?.forecast?.forecastDay ?: emptyList()
+                        state.value.data?.forecast?.forecastDay ?: emptyList()
                     items(dailyForecast) { details ->
                         details.day.avgtempC?.toFloat()?.let { it1 ->
                             DailyItem(
@@ -364,6 +358,7 @@ fun DisplayData(viewModel: HomeViewModel) {
                 onDismissRequest = { locationDialog.value = false },
                 title = {
                     Text(
+
                         style = TextStyle(
                             color = White,
                             fontSize = 16.sp,
@@ -376,12 +371,12 @@ fun DisplayData(viewModel: HomeViewModel) {
                 },
                 text = {
                     TextField(
-                        value = viewModel.locationDialogValue.value,
+                        value = viewModel.locationDialogValue.collectAsState().value,
                         onValueChange = {
                             viewModel.setLocationDialogValue(it)
                         },
                         textStyle = TextStyle(color = White),
-                        placeholder = { Text(text = "Tier", color = White) },
+                        placeholder = { Text(text = "Enter a Location", color = White) },
                     )
                 },
                 confirmButton = {
