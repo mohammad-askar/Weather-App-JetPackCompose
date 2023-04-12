@@ -1,4 +1,4 @@
-# JetWeather
+# Weather
 A weather app built using Jetpack compose
 
 ## Architecture
